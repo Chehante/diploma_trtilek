@@ -1,13 +1,14 @@
 <component name="libraryTable">
   <library name="com._1c.v8.core-1.0.1">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.core-1.0.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.ibis-1.0.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.ibis.admin-1.3.3.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.ibis.swp-1.0.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.swp-1.0.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.swp.netty-1.0.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../com._1c.v8.ibis.admin-1.3.3/lib/netty-3.2.6.Final.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Диплом/java-api/java-api/com._1c.v8.ibis.admin-1.3.3/com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.core-1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Диплом/java-api/java-api/com._1c.v8.ibis.admin-1.3.3/com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.ibis-1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Диплом/java-api/java-api/com._1c.v8.ibis.admin-1.3.3/com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.ibis.admin-1.3.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Диплом/java-api/java-api/com._1c.v8.ibis.admin-1.3.3/com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.ibis.swp-1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Диплом/java-api/java-api/com._1c.v8.ibis.admin-1.3.3/com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.swp-1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Диплом/java-api/java-api/com._1c.v8.ibis.admin-1.3.3/com._1c.v8.ibis.admin-1.3.3/lib/com._1c.v8.swp.netty-1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Диплом/java-api/java-api/com._1c.v8.ibis.admin-1.3.3/com._1c.v8.ibis.admin-1.3.3/lib/netty-3.2.6.Final.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Диплом/postgresql-42.1.4.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
