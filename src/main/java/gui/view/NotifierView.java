@@ -1,6 +1,7 @@
 package gui.view;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,8 @@ public class NotifierView extends JPanel {
     //table component
     private JLabel tableOfBasesLabel;
     private JTable tableOfBases;
+    private JScrollPane jScrollPane;
+    private ListOfBasesTableModel listOfBasesTableModel;
 
     private TitledBorder panelBorder;
 
@@ -72,7 +75,7 @@ public class NotifierView extends JPanel {
         secondPanel.setLayout(new BorderLayout());
 
         JPanel secondPanel1 = new JPanel();
-        secondPanel.add(secondPanel1, BorderLayout.PAGE_START);
+        secondPanel.add(secondPanel1, BorderLayout.NORTH);
         secondPanel1.add(getBasesListButton);
         secondPanel1.add(checkBasesButton);
         secondPanel1.add(refreshBasesListFileButton);
@@ -80,6 +83,7 @@ public class NotifierView extends JPanel {
         JPanel secondPanel2 = new JPanel();
         secondPanel.add(secondPanel2);
         secondPanel2.add(tableOfBasesLabel);
+        secondPanel2.add(jScrollPane);
 
         JPanel thirdPanel = new JPanel();
         thirdPanel.add(serverLable);
@@ -147,7 +151,10 @@ public class NotifierView extends JPanel {
 
     private void createTable(){
         tableOfBasesLabel = new JLabel("Список баз для проверки:");
-        tableOfBases = new JTable();
+        listOfBasesTableModel = new ListOfBasesTableModel();
+        tableOfBases = new JTable(listOfBasesTableModel);
+        jScrollPane = new JScrollPane(tableOfBases);
+        jScrollPane.setSize(300, 200);
     }
 
     private void init() {
