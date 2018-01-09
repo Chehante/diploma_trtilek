@@ -1,3 +1,5 @@
+package Main;
+
 import com._1c.v8.ibis.admin.IClusterInfo;
 import com._1c.v8.ibis.admin.IInfoBaseInfo;
 import com._1c.v8.ibis.admin.IInfoBaseInfoShort;
@@ -16,19 +18,17 @@ import java.util.UUID;
 
 public class Notificator {
 
-    private String basesPath;
     private Util_1C util1C;
     private String adressOfRES;
     private int portOfRES;
 
 
-    Notificator(String basesPath){
-        this.basesPath = basesPath;
+    public Notificator(){
         this.adressOfRES = "localhost";
         this.portOfRES = 1545;
     }
 
-    List<Base_1C> getListOfBases() throws ParserConfigurationException, IOException, SAXException {
+    public List<Base_1C> getListOfBases(String basesPath) throws ParserConfigurationException, IOException, SAXException {
 
         List<Base_1C> baseList = new LinkedList<Base_1C>();
 
@@ -71,9 +71,9 @@ public class Notificator {
         return baseList;
     }
 
-    List<Base_1C> checkingOfBases(List<Base_1C> commonListOfBases){
+    public List<Base_1C> checkingOfBases(List<Base_1C> commonListOfBases){
 
-        util1C = new Util_1C(basesPath, new AgentAdminConnectorFactory());
+        util1C = new Util_1C("", new AgentAdminConnectorFactory());
         List<Base_1C> warningBasesList = new LinkedList<Base_1C>();
 
         util1C.connect(adressOfRES, portOfRES, 0);

@@ -1,12 +1,20 @@
 package gui.view;
 
+import Main.Base_1C;
+import Main.Notificator;
+import org.xml.sax.SAXException;
+
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.awt.*;
 
 public class NotifierView extends JPanel {
+
+    Notificator notificator;
 
     private static final String RAS_DEFAULT_IP_PORT = "1545";
     private static final String LOCALHOST = "127.0.0.1";
@@ -32,10 +40,11 @@ public class NotifierView extends JPanel {
     private JTable tableOfBases;
     private JScrollPane jScrollPane;
     private ListOfBasesTableModel listOfBasesTableModel;
+    private JButton addButton;
+    private JButton deleteButton;
 
-    private TitledBorder panelBorder;
-
-    public NotifierView() {
+    public NotifierView(Notificator notificator) {
+        this.notificator = notificator;
         createComponents();
         init();
         setLayout(new BorderLayout());
@@ -60,6 +69,8 @@ public class NotifierView extends JPanel {
         createBasesListButton();
         createCheckBasesButton();
         createRefreshBasesListFileButton();
+        createAddButton();
+        createDeleteButton();
     }
 
     private void addComponents(){
@@ -82,6 +93,8 @@ public class NotifierView extends JPanel {
 
         JPanel secondPanel2 = new JPanel();
         secondPanel.add(secondPanel2);
+        secondPanel2.add(addButton);
+        secondPanel2.add(deleteButton);
         secondPanel2.add(tableOfBasesLabel);
         secondPanel2.add(jScrollPane);
 
@@ -98,13 +111,28 @@ public class NotifierView extends JPanel {
         getBasesListButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
+                List<Base_1C> basesList = new LinkedList<Base_1C>();
                 try {
-                    System.out.println("Обновили таблицу");
-                } catch (RuntimeException e) {
-                    e.getStackTrace();
+                    basesList = notificator.getListOfBases(LIST_OF_BASES_PATH);
+                } catch (ParserConfigurationException e) {
+                    System.out.println("Не удалось распарсить файл: " + LIST_OF_BASES_PATH);
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    System.out.println("Не удалось распарсить файл: " + LIST_OF_BASES_PATH);
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    System.out.println("Не удалось распарсить файл: " + LIST_OF_BASES_PATH);
+                    e.printStackTrace();
+                }
+
+                if (basesList.size() > 0) {
+                    System.out.println("Bases with session denied" + (basesList.size() == 1 ? " is: " : " are: "));
+                    List<Base_1C> warningBases = notificator.checkingOfBases(basesList);
+                    for (Base_1C warningBase : warningBases) {
+                        System.out.println(warningBase.getName());
+                    }
                 }
             }
-
         });
     }
 
@@ -137,6 +165,38 @@ public class NotifierView extends JPanel {
         });
     }
 
+    private void createAddButton() {
+        addButton = new JButton("Добавить");
+        addButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    listOfBasesTableModel.addRow(new String[]{"-", "-", "-"});
+                    tableOfBases.revalidate();
+                } catch (RuntimeException e) {
+                    e.getStackTrace();
+                }
+            }
+        });
+    }
+
+    private void createDeleteButton() {
+        deleteButton = new JButton("Удалить");
+        deleteButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    int selectedRow = tableOfBases.getSelectedRow();
+                    if(selectedRow > -1)
+                        listOfBasesTableModel.deleteRow(selectedRow);
+                        tableOfBases.revalidate();
+                } catch (RuntimeException e) {
+                    e.getStackTrace();
+                }
+            }
+        });
+    }
+
     private void createFields() {
 
         serverLable = new JLabel("Server:");
@@ -151,20 +211,19 @@ public class NotifierView extends JPanel {
 
     private void createTable(){
         tableOfBasesLabel = new JLabel("Список баз для проверки:");
-        listOfBasesTableModel = new ListOfBasesTableModel();
+        String[] columnTitles = {"База", "Пользователь", "Пароль"};
+        listOfBasesTableModel = new ListOfBasesTableModel(columnTitles);
         tableOfBases = new JTable(listOfBasesTableModel);
         jScrollPane = new JScrollPane(tableOfBases);
         jScrollPane.setSize(300, 200);
+
+        listOfBasesTableModel.addRow(new String[]{"База", "Ивана", "Грозного"});
+        listOfBasesTableModel.addRow(new String[]{"База", "Кирилла", "Ильича"});
     }
 
     private void init() {
         serverTextField.setText(LOCALHOST);
         serverPortTextField.setText(RAS_DEFAULT_IP_PORT);
         fileOfBasesTextField.setText(LIST_OF_BASES_PATH);
-    }
-
-    private void setBorderTitle(String status) {
-        panelBorder.setTitle("Тайтл " + " (" + status + ")");
-        repaint();
     }
 }

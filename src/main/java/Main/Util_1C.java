@@ -1,3 +1,5 @@
+package Main;
+
 import com._1c.v8.ibis.admin.*;
 import com._1c.v8.ibis.admin.client.IAgentAdminConnector;
 import com._1c.v8.ibis.admin.client.IAgentAdminConnectorFactory;

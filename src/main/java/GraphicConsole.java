@@ -1,3 +1,4 @@
+import Main.Notificator;
 import gui.view.ConsoleTabbed;
 import gui.view.MainFrame;
 import gui.view.NotifierView;
@@ -15,15 +16,8 @@ public class GraphicConsole {
 
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException{
 //////////////////////////////////////////////NOTIFICATOR//////////////////////////////////////////////
-//        Notificator notificator = new Notificator("list bases.xml");
 //
-//        List<Base_1C> basesList = notificator.getListOfBases();
 //
-//        if (basesList.size() > 0) {
-//            System.out.println("Bases with session denied" + (basesList.size() == 1 ? " is: " : " are: "));
-//            List<Base_1C> warningBases = notificator.checkingOfBases(basesList);
-//            for (Base_1C warningBase: warningBases) {
-//                System.out.println(warningBase.getName());
 //            }
 //        }
 //////////////////////////////////////////WARNINGMESSAGEWORKER//////////////////////////////////////////////
@@ -31,7 +25,8 @@ public class GraphicConsole {
 //        List<WarningMessage_1C> warningMessages = warningMessageWorker.getListOfWarningMessages();
 //        warningMessageWorker.sendingWarningMessages(warningMessages);
 
-        NotifierView notifierView = new NotifierView();
+        Notificator notificator = new Notificator();
+        NotifierView notifierView = new NotifierView(notificator);
         WarningMessageView warningMessageView = new WarningMessageView();
         ConsoleTabbed mainTabbed =
                 new ConsoleTabbed(notifierView, warningMessageView);
