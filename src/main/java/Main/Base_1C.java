@@ -5,6 +5,15 @@ public class Base_1C {
     private String user;
     private String password;
     private String name;
+    private int indexFromTable;
+
+    public int getIndexFromTable() {
+        return indexFromTable;
+    }
+
+    public void setIndexFromTable(int indexFromTable) {
+        this.indexFromTable = indexFromTable;
+    }
 
     public String getUser() {
         return user;

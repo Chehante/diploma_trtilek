@@ -1,7 +1,11 @@
 package gui.view;
 
+import Main.Base_1C;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.function.Consumer;
 
 public class ListOfBasesTableModel extends AbstractTableModel {
 
@@ -58,4 +62,5 @@ public class ListOfBasesTableModel extends AbstractTableModel {
     public void deleteRow(int index){
         listOfRows.remove(index);
     }
+
 }

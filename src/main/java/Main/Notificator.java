@@ -23,9 +23,9 @@ public class Notificator {
     private int portOfRES;
 
 
-    public Notificator(){
-        this.adressOfRES = "localhost";
-        this.portOfRES = 1545;
+    public Notificator(String adressOfRES, int portOfRES){
+        this.adressOfRES = adressOfRES;
+        this.portOfRES = portOfRES;
     }
 
     public List<Base_1C> getListOfBases(String basesPath) throws ParserConfigurationException, IOException, SAXException {
@@ -73,7 +73,7 @@ public class Notificator {
 
     public List<Base_1C> checkingOfBases(List<Base_1C> commonListOfBases){
 
-        util1C = new Util_1C("", new AgentAdminConnectorFactory());
+        util1C = new Util_1C(new AgentAdminConnectorFactory());
         List<Base_1C> warningBasesList = new LinkedList<Base_1C>();
 
         util1C.connect(adressOfRES, portOfRES, 0);
@@ -108,5 +108,21 @@ public class Notificator {
 
         return warningBasesList;
 
+    }
+
+    public String getAdressOfRES() {
+        return adressOfRES;
+    }
+
+    public void setAdressOfRES(String adressOfRES) {
+        this.adressOfRES = adressOfRES;
+    }
+
+    public int getPortOfRES() {
+        return portOfRES;
+    }
+
+    public void setPortOfRES(int portOfRES) {
+        this.portOfRES = portOfRES;
     }
 }

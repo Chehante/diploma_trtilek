@@ -114,6 +114,21 @@ public class NotifierView extends JPanel {
                 List<Base_1C> basesList = new LinkedList<Base_1C>();
                 try {
                     basesList = notificator.getListOfBases(LIST_OF_BASES_PATH);
+                    if (basesList.size() > 0) {
+                        int rowCount = listOfBasesTableModel.getRowCount();
+                        if (rowCount > 0) {
+                            for (int i = 0; i < rowCount; i++) {
+                                listOfBasesTableModel.deleteRow(0);
+                            }
+                        }
+
+                        for (Base_1C base: basesList) {
+                            listOfBasesTableModel.addRow(new String[]{base.getName(), base.getUser(), base.getPassword()});
+                            listOfBasesTableModel.fireTableDataChanged();
+                        }
+
+                    }
+
                 } catch (ParserConfigurationException e) {
                     System.out.println("Не удалось распарсить файл: " + LIST_OF_BASES_PATH);
                     e.printStackTrace();
@@ -124,14 +139,6 @@ public class NotifierView extends JPanel {
                     System.out.println("Не удалось распарсить файл: " + LIST_OF_BASES_PATH);
                     e.printStackTrace();
                 }
-
-                if (basesList.size() > 0) {
-                    System.out.println("Bases with session denied" + (basesList.size() == 1 ? " is: " : " are: "));
-                    List<Base_1C> warningBases = notificator.checkingOfBases(basesList);
-                    for (Base_1C warningBase : warningBases) {
-                        System.out.println(warningBase.getName());
-                    }
-                }
             }
         });
     }
@@ -141,14 +148,32 @@ public class NotifierView extends JPanel {
         checkBasesButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                try {
-                    System.out.println("Проверили таблицу");
-                } catch (RuntimeException e) {
-                    e.getStackTrace();
+                List<Base_1C> basesList = getBaseListFromTable();
+                if (basesList.size() > 0) {
+                    List<Base_1C> warningBases = notificator.checkingOfBases(basesList);
+                    System.out.println("Bases with session denied" + (warningBases.size() == 1 ? " is: " : " are: "));
+                    for (Base_1C warningBase : warningBases) {
+                        System.out.println(warningBase.getName());
+                    }
                 }
             }
 
         });
+    }
+
+    private List<Base_1C> getBaseListFromTable(){
+        List<Base_1C> listOfBases = new LinkedList<Base_1C>();
+        int rowCount = tableOfBases.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            Base_1C newBase_1C = new Base_1C();
+            newBase_1C.setName((String) listOfBasesTableModel.getValueAt(i, 0));
+            newBase_1C.setUser((String) listOfBasesTableModel.getValueAt(i, 1));
+            newBase_1C.setPassword((String) listOfBasesTableModel.getValueAt(i, 2));
+            newBase_1C.setIndexFromTable(i);
+            listOfBases.add(newBase_1C);
+        }
+
+        return listOfBases;
     }
 
     private void createRefreshBasesListFileButton() {

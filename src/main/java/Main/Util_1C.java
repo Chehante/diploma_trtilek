@@ -17,15 +17,12 @@ import java.util.UUID;
 
 public class Util_1C {
 
-    private String basesPath;
     private final IAgentAdminConnectorFactory factory;
     private IAgentAdminConnector connector;
     private IAgentAdminConnection connection;
 
-    public Util_1C(String basesPath, IAgentAdminConnectorFactory factory){
+    public Util_1C(IAgentAdminConnectorFactory factory){
         this.factory = factory;
-        this.basesPath = basesPath;
-
     }
 
     public void connect(String address, int port, long timeout) {

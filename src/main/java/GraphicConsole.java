@@ -25,7 +25,7 @@ public class GraphicConsole {
 //        List<WarningMessage_1C> warningMessages = warningMessageWorker.getListOfWarningMessages();
 //        warningMessageWorker.sendingWarningMessages(warningMessages);
 
-        Notificator notificator = new Notificator();
+        Notificator notificator = new Notificator("127.0.0.1", 1545);
         NotifierView notifierView = new NotifierView(notificator);
         WarningMessageView warningMessageView = new WarningMessageView();
         ConsoleTabbed mainTabbed =
