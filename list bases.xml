@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bases>
     <base name = "upp_trtilek">
-        <user>Тртилек Кирилл</user>
+        <user>Тртилек Кирилл Ильич</user>
         <pass>Jcafkml1984</pass>
     </base>
     <base name = "upp_everyday">
-        <user>Тртилек Кирилл</user>
+        <user>Тртилек Кирилл Ильич</user>
         <pass>Jcafkml1984</pass>
     </base>
 </bases>

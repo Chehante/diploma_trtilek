@@ -5,9 +5,4 @@
 <messagetext>Уважаемые пользователи. В 17.20 работа 1С будет прервана.</messagetext>
 <tablename>_const169</tablename>
 </message>
-<message>
-<base>upp_w</base>
-<messagetext>Ахтунг. Всем из базы</messagetext>
-<tablename>_const169</tablename>
-</message>
 </messages>

@@ -1,15 +1,27 @@
 package gui.view;
 
+import Main.Base_1C;
+import Main.WarningMessageWorker;
+import Main.WarningMessage_1C;
+import org.xml.sax.SAXException;
+
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class WarningMessageView extends JPanel {
 
-    private static final String RAS_DEFAULT_IP_PORT = "1545";
+    WarningMessageWorker warningMessageWorker;
+
+    private static final String PG_DEFAULT_IP_PORT = "5432";
     private static final String LOCALHOST = "127.0.0.1";
-    private static final String LIST_OF_BASES_PATH = "list bases.xml";
+    private static final String LIST_OF_MESSAGES = "list warning messages.xml";
 
     //connection components
     private JLabel serverLable;
@@ -17,54 +29,47 @@ public class WarningMessageView extends JPanel {
     private JLabel serverPortLable;
     private JTextField serverPortTextField;
 
-    //file of bases components
-    private JLabel fileOfBasesLabel;
-    private JTextField fileOfBasesTextField;
+    //file of messages components
+    private JLabel fileOfMessagesLabel;
+    private JTextField fileOfMessagesTextField;
 
     //buttons components
-    private JButton getBasesListButton;
-    private JButton checkBasesButton;
-    private JButton refreshBasesListFileButton;
+    private JButton getMessagesListButton;
+    private JButton sendMessagesButton;
+    private JButton refreshMessageListFileButton;
 
     //table component
-    private JLabel tableOfBasesLabel;
-    private JTable tableOfBases;
+    private JLabel tableOfMessagesLabel;
+    private JTable tableOfMessages;
+    private JScrollPane jScrollPane;
+    private ListOfBasesTableModel listOfMessagesTableModel;
+    private JButton addButton;
+    private JButton deleteButton;
 
-    private TitledBorder panelBorder;
-
-    public WarningMessageView() {
+    public WarningMessageView(WarningMessageWorker warningMessageWorker) {
+        this.warningMessageWorker = warningMessageWorker;
         createComponents();
         init();
         setLayout(new BorderLayout());
         addComponents();
     }
 
-    public int getPort() {
-        try {
-            return Integer.valueOf(serverPortTextField.getText()).intValue();
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Illegal port value", e);
-        }
-    }
-
-    public String getServer() {
-        return serverTextField.getText();
-    }
-
     private void createComponents() {
         createFields();
         createTable();
-        createBasesListButton();
-        createCheckBasesButton();
-        createRefreshBasesListFileButton();
+        createMessagesListButton();
+        createSendMessagesButton();
+        createRefreshMessagesListFileButton();
+        createAddButton();
+        createDeleteButton();
     }
 
     private void addComponents(){
 
         JPanel firstPannel = new JPanel();
         firstPannel.setLayout(new BorderLayout());
-        firstPannel.add(fileOfBasesLabel, BorderLayout.WEST);
-        firstPannel.add(fileOfBasesTextField);
+        firstPannel.add(fileOfMessagesLabel, BorderLayout.WEST);
+        firstPannel.add(fileOfMessagesTextField);
         add(firstPannel, BorderLayout.PAGE_START);
 
         JPanel secondPanel = new JPanel();
@@ -72,14 +77,17 @@ public class WarningMessageView extends JPanel {
         secondPanel.setLayout(new BorderLayout());
 
         JPanel secondPanel1 = new JPanel();
-        secondPanel.add(secondPanel1, BorderLayout.PAGE_START);
-        secondPanel1.add(getBasesListButton);
-        secondPanel1.add(checkBasesButton);
-        secondPanel1.add(refreshBasesListFileButton);
+        secondPanel.add(secondPanel1, BorderLayout.NORTH);
+        secondPanel1.add(getMessagesListButton);
+        secondPanel1.add(sendMessagesButton);
+        secondPanel1.add(refreshMessageListFileButton);
 
         JPanel secondPanel2 = new JPanel();
         secondPanel.add(secondPanel2);
-        secondPanel2.add(tableOfBasesLabel);
+        secondPanel2.add(addButton);
+        secondPanel2.add(deleteButton);
+        secondPanel2.add(tableOfMessagesLabel);
+        secondPanel2.add(jScrollPane);
 
         JPanel thirdPanel = new JPanel();
         thirdPanel.add(serverLable);
@@ -89,43 +97,116 @@ public class WarningMessageView extends JPanel {
         add(thirdPanel, BorderLayout.PAGE_END);
     }
 
-    private void createBasesListButton() {
-        getBasesListButton = new JButton("Заполнить таблицу");
-        getBasesListButton.addActionListener(new AbstractAction() {
+    private void createMessagesListButton() {
+        getMessagesListButton = new JButton("Заполнить сообщения");
+        getMessagesListButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
+
                 try {
-                    System.out.println("Обновили таблицу");
-                } catch (RuntimeException e) {
-                    e.getStackTrace();
+                    List<WarningMessage_1C> warningMessages = warningMessageWorker.getListOfWarningMessages(fileOfMessagesTextField.getText());
+                    if (warningMessages.size() > 0) {
+                        int rowCount = listOfMessagesTableModel.getRowCount();
+                        if (rowCount > 0) {
+                            for (int i = 0; i < rowCount; i++) {
+                                listOfMessagesTableModel.deleteRow(0);
+                            }
+                        }
+
+                        for (WarningMessage_1C warningMessage: warningMessages) {
+                            listOfMessagesTableModel.addRow(new String[]{warningMessage.getBaseName(), warningMessage.getMessageText(), warningMessage.getTableName()});
+                            listOfMessagesTableModel.fireTableDataChanged();
+                        }
+
+                    }
+
+                } catch (ParserConfigurationException e) {
+                    System.out.println("Не удалось распарсить файл: " + fileOfMessagesTextField.getText());
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    System.out.println("Не удалось распарсить файл: " + fileOfMessagesTextField.getText());
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    System.out.println("Не удалось распарсить файл: " + fileOfMessagesTextField.getText());
+                    e.printStackTrace();
                 }
             }
 
         });
     }
 
-    private void createCheckBasesButton() {
-        checkBasesButton = new JButton("Проверить базы");
-        checkBasesButton.addActionListener(new AbstractAction() {
+    private void createSendMessagesButton() {
+        sendMessagesButton = new JButton("Разослать сообщения");
+        sendMessagesButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                try {
-                    System.out.println("Проверили таблицу");
-                } catch (RuntimeException e) {
-                    e.getStackTrace();
+                List<WarningMessage_1C> messageList = getMessageListFromTable();
+                if (messageList.size() > 0) {
+                    warningMessageWorker.sendingWarningMessages(messageList);
                 }
             }
 
         });
     }
 
-    private void createRefreshBasesListFileButton() {
-        refreshBasesListFileButton = new JButton("Обновить файл");
-        refreshBasesListFileButton.addActionListener(new AbstractAction() {
+    private List<WarningMessage_1C> getMessageListFromTable(){
+        List<WarningMessage_1C> listOfMessages = new LinkedList<WarningMessage_1C>();
+        int rowCount = tableOfMessages.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            WarningMessage_1C warningMessage = new WarningMessage_1C();
+            warningMessage.setBaseName((String) listOfMessagesTableModel.getValueAt(i, 0));
+            warningMessage.setMessageText((String) listOfMessagesTableModel.getValueAt(i, 1));
+            warningMessage.setTableName((String) listOfMessagesTableModel.getValueAt(i, 2));
+            listOfMessages.add(warningMessage);
+        }
+
+        return listOfMessages;
+    }
+
+    private void createRefreshMessagesListFileButton() {
+        refreshMessageListFileButton = new JButton("Обновить файл");
+        refreshMessageListFileButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                List<WarningMessage_1C> messagesList = getMessageListFromTable();
+                try {
+                    warningMessageWorker.refreshBasesListFile(fileOfMessagesTextField.getText(), messagesList);
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (TransformerException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void createAddButton() {
+        addButton = new JButton("Добавить");
+        addButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 try {
-                    System.out.println("Обновили файл");
+                    listOfMessagesTableModel.addRow(new String[]{"-", "-", "-"});
+                    tableOfMessages.revalidate();
+                } catch (RuntimeException e) {
+                    e.getStackTrace();
+                }
+            }
+        });
+    }
+
+    private void createDeleteButton() {
+        deleteButton = new JButton("Удалить");
+        deleteButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    int selectedRow = tableOfMessages.getSelectedRow();
+                    if(selectedRow > -1)
+                        listOfMessagesTableModel.deleteRow(selectedRow);
+                    tableOfMessages.revalidate();
                 } catch (RuntimeException e) {
                     e.getStackTrace();
                 }
@@ -141,23 +222,23 @@ public class WarningMessageView extends JPanel {
         serverPortTextField = new JTextField(5);
         serverPortTextField.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        fileOfBasesLabel = new JLabel("Файл списка баз:");
-        fileOfBasesTextField = new JTextField();
+        fileOfMessagesLabel = new JLabel("Файл соообщений:");
+        fileOfMessagesTextField = new JTextField();
     }
 
     private void createTable(){
-        tableOfBasesLabel = new JLabel("Список баз для проверки:");
-        tableOfBases = new JTable();
+        tableOfMessagesLabel = new JLabel("Список сообщений для рассылки:");
+        String[] columnTitles = {"База", "Сообщение", "Имя таблицы (SQL)"};
+        listOfMessagesTableModel = new ListOfBasesTableModel(columnTitles);
+        tableOfMessages = new JTable(listOfMessagesTableModel);
+        jScrollPane = new JScrollPane(tableOfMessages);
+        jScrollPane.setSize(300, 200);
+        tableOfMessages.validate();
     }
 
     private void init() {
         serverTextField.setText(LOCALHOST);
-        serverPortTextField.setText(RAS_DEFAULT_IP_PORT);
-        fileOfBasesTextField.setText(LIST_OF_BASES_PATH);
-    }
-
-    private void setBorderTitle(String status) {
-        panelBorder.setTitle("Тайтл " + " (" + status + ")");
-        repaint();
+        serverPortTextField.setText(PG_DEFAULT_IP_PORT);
+        fileOfMessagesTextField.setText(LIST_OF_MESSAGES);
     }
 }

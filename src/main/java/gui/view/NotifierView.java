@@ -6,7 +6,9 @@ import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.event.ActionEvent;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,18 +51,6 @@ public class NotifierView extends JPanel {
         init();
         setLayout(new BorderLayout());
         addComponents();
-    }
-
-    public int getPort() {
-        try {
-            return Integer.valueOf(serverPortTextField.getText()).intValue();
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Illegal port value", e);
-        }
-    }
-
-    public String getServer() {
-        return serverTextField.getText();
     }
 
     private void createComponents() {
@@ -113,7 +103,7 @@ public class NotifierView extends JPanel {
             public void actionPerformed(ActionEvent event) {
                 List<Base_1C> basesList = new LinkedList<Base_1C>();
                 try {
-                    basesList = notificator.getListOfBases(LIST_OF_BASES_PATH);
+                    basesList = notificator.getListOfBases(fileOfBasesTextField.getText());
                     if (basesList.size() > 0) {
                         int rowCount = listOfBasesTableModel.getRowCount();
                         if (rowCount > 0) {
@@ -130,13 +120,13 @@ public class NotifierView extends JPanel {
                     }
 
                 } catch (ParserConfigurationException e) {
-                    System.out.println("Не удалось распарсить файл: " + LIST_OF_BASES_PATH);
+                    System.out.println("Не удалось распарсить файл: " + fileOfBasesTextField.getText());
                     e.printStackTrace();
                 } catch (IOException e) {
-                    System.out.println("Не удалось распарсить файл: " + LIST_OF_BASES_PATH);
+                    System.out.println("Не удалось распарсить файл: " + fileOfBasesTextField.getText());
                     e.printStackTrace();
                 } catch (SAXException e) {
-                    System.out.println("Не удалось распарсить файл: " + LIST_OF_BASES_PATH);
+                    System.out.println("Не удалось распарсить файл: " + fileOfBasesTextField.getText());
                     e.printStackTrace();
                 }
             }
@@ -151,9 +141,16 @@ public class NotifierView extends JPanel {
                 List<Base_1C> basesList = getBaseListFromTable();
                 if (basesList.size() > 0) {
                     List<Base_1C> warningBases = notificator.checkingOfBases(basesList);
-                    System.out.println("Bases with session denied" + (warningBases.size() == 1 ? " is: " : " are: "));
-                    for (Base_1C warningBase : warningBases) {
-                        System.out.println(warningBase.getName());
+
+                    if (warningBases.size() > 0) {
+
+                        Renderer renderer = new Renderer();
+                        renderer.setWarningBaseList((LinkedList<Base_1C>) warningBases);
+                        for (int i = 0; i < 3 ; i++) {
+                            tableOfBases.getColumnModel().getColumn(i).setCellRenderer(renderer);
+                        }
+                        listOfBasesTableModel.fireTableDataChanged();
+
                     }
                 }
             }
@@ -181,10 +178,15 @@ public class NotifierView extends JPanel {
         refreshBasesListFileButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
+                List<Base_1C> basesList = getBaseListFromTable();
                 try {
-                    System.out.println("Обновили файл");
-                } catch (RuntimeException e) {
-                    e.getStackTrace();
+                    notificator.refreshBasesListFile(fileOfBasesTextField.getText(), basesList);
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (TransformerException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -212,9 +214,9 @@ public class NotifierView extends JPanel {
             public void actionPerformed(ActionEvent event) {
                 try {
                     int selectedRow = tableOfBases.getSelectedRow();
-                    if(selectedRow > -1)
+                    if (selectedRow > -1)
                         listOfBasesTableModel.deleteRow(selectedRow);
-                        tableOfBases.revalidate();
+                    tableOfBases.revalidate();
                 } catch (RuntimeException e) {
                     e.getStackTrace();
                 }
@@ -234,16 +236,13 @@ public class NotifierView extends JPanel {
         fileOfBasesTextField = new JTextField();
     }
 
-    private void createTable(){
+    private void createTable() {
         tableOfBasesLabel = new JLabel("Список баз для проверки:");
         String[] columnTitles = {"База", "Пользователь", "Пароль"};
         listOfBasesTableModel = new ListOfBasesTableModel(columnTitles);
         tableOfBases = new JTable(listOfBasesTableModel);
         jScrollPane = new JScrollPane(tableOfBases);
         jScrollPane.setSize(300, 200);
-
-        listOfBasesTableModel.addRow(new String[]{"База", "Ивана", "Грозного"});
-        listOfBasesTableModel.addRow(new String[]{"База", "Кирилла", "Ильича"});
     }
 
     private void init() {
@@ -251,4 +250,5 @@ public class NotifierView extends JPanel {
         serverPortTextField.setText(RAS_DEFAULT_IP_PORT);
         fileOfBasesTextField.setText(LIST_OF_BASES_PATH);
     }
+
 }

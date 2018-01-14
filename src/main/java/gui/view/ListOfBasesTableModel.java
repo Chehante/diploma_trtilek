@@ -4,14 +4,19 @@ import Main.Base_1C;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.function.Consumer;
 
 public class ListOfBasesTableModel extends AbstractTableModel {
 
     private int columnCount;
     private String[] columnNames;
     private ArrayList<String[]> listOfRows;
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        String[] strings = listOfRows.get(rowIndex);
+        strings[columnIndex] = (String) aValue;
+        listOfRows.set(rowIndex, strings);
+    }
 
     public ListOfBasesTableModel(String[] columnNames){
         this.columnCount = columnNames.length;
@@ -39,12 +44,7 @@ public class ListOfBasesTableModel extends AbstractTableModel {
 
     @Override
     public String getColumnName(int column) {
-        switch (column) {
-            case 0: return "База";
-            case 1: return "User";
-            case 2: return "Pass";
-        }
-        return "";
+        return columnNames[column];
     }
 
     public void addRow(String[] row){

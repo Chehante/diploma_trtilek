@@ -6,6 +6,24 @@ public class Base_1C {
     private String password;
     private String name;
     private int indexFromTable;
+    private boolean sessionsDenied;
+    private boolean scheduledJobsDenied;
+
+    public boolean isSessionsDenied() {
+        return sessionsDenied;
+    }
+
+    public void setSessionsDenied(boolean sessionsDenied) {
+        this.sessionsDenied = sessionsDenied;
+    }
+
+    public boolean isScheduledJobsDenied() {
+        return scheduledJobsDenied;
+    }
+
+    public void setScheduledJobsDenied(boolean scheduledJobsDenied) {
+        this.scheduledJobsDenied = scheduledJobsDenied;
+    }
 
     public int getIndexFromTable() {
         return indexFromTable;

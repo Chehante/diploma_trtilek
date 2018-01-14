@@ -10,7 +10,16 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.awt.print.Book;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +32,7 @@ public class Notificator {
     private int portOfRES;
 
 
-    public Notificator(String adressOfRES, int portOfRES){
+    public Notificator(String adressOfRES, int portOfRES) {
         this.adressOfRES = adressOfRES;
         this.portOfRES = portOfRES;
     }
@@ -58,9 +67,9 @@ public class Notificator {
                         String detailName = detailNode.getNodeName();
                         String detailValue = detailNode.getTextContent();
 
-                        if(detailName.equals("user"))
+                        if (detailName.equals("user"))
                             base.setUser(detailValue);
-                        else if(detailName.equals("pass"))
+                        else if (detailName.equals("pass"))
                             base.setPassword(detailValue);
                     }
                 }
@@ -71,7 +80,7 @@ public class Notificator {
         return baseList;
     }
 
-    public List<Base_1C> checkingOfBases(List<Base_1C> commonListOfBases){
+    public List<Base_1C> checkingOfBases(List<Base_1C> commonListOfBases) {
 
         util1C = new Util_1C(new AgentAdminConnectorFactory());
         List<Base_1C> warningBasesList = new LinkedList<Base_1C>();
@@ -82,7 +91,7 @@ public class Notificator {
 
         IClusterInfo clusterInfo = clusterList.get(0);
 
-        if (clusterInfo != null){
+        if (clusterInfo != null) {
 
             UUID uuid = clusterInfo.getClusterId();
             util1C.authenticateCluster(uuid, "", "");
@@ -93,10 +102,16 @@ public class Notificator {
                 String baseName = currentBase.getName();
 
                 for (int j = 0; j < infoBaseInfoShort.size(); j++) {
-                    if(infoBaseInfoShort.get(j).getName().equals(baseName)){
+                    if (infoBaseInfoShort.get(j).getName().equals(baseName)) {
                         util1C.addInfoBaseCredentials(uuid, commonListOfBases.get(i).getUser(), commonListOfBases.get(i).getPassword());
                         IInfoBaseInfo iInfoBaseInfo = util1C.getInfoBaseInfo(uuid, infoBaseInfoShort.get(j).getInfoBaseId());
-                        if (iInfoBaseInfo.isSessionsDenied()){
+                        if (iInfoBaseInfo.isSessionsDenied() || iInfoBaseInfo.isScheduledJobsDenied()) {
+                            if (iInfoBaseInfo.isSessionsDenied()) {
+                                currentBase.setSessionsDenied(true);
+                            }
+                            if (iInfoBaseInfo.isScheduledJobsDenied()) {
+                                currentBase.setScheduledJobsDenied(true);
+                            }
                             warningBasesList.add(currentBase);
                         }
                     }
@@ -110,19 +125,44 @@ public class Notificator {
 
     }
 
-    public String getAdressOfRES() {
-        return adressOfRES;
+    public void refreshBasesListFile(String filePath, List<Base_1C> basesList) throws ParserConfigurationException, TransformerException, FileNotFoundException {
+        // Инициализируем фабрику и билдер
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+
+        // Создаем документ и указываем версию
+        Document document = builder.newDocument();
+        document.setXmlVersion("1.0");
+        // Создаем корневой элемент
+        Element catalogEl = document.createElement("bases");
+        document.appendChild(catalogEl);
+        // Добавляем подузлы
+        for (Base_1C base1C : basesList) {
+            Element baseEl = document.createElement("base");
+            catalogEl.appendChild(baseEl);
+            baseEl.setAttribute("name", base1C.getName());
+            appendDataNode(document, baseEl, "user", base1C.getUser());
+            appendDataNode(document, baseEl, "pass", base1C.getPassword());
+        }
+
+        // Создаем трансформер
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setAttribute("indent-number", 4);
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        // Оборачиваем докумен
+        DOMSource src = new DOMSource(document);
+        StreamResult res = new StreamResult(new FileOutputStream(filePath));
+        // Создаем конечный XML
+        transformer.transform(src, res);
+
     }
 
-    public void setAdressOfRES(String adressOfRES) {
-        this.adressOfRES = adressOfRES;
+    private static void appendDataNode(Document document, Element parent, String tagName,
+                                       String value) {
+        Element element = document.createElement(tagName);
+        element.appendChild(document.createTextNode(value));
+        parent.appendChild(element);
     }
 
-    public int getPortOfRES() {
-        return portOfRES;
-    }
-
-    public void setPortOfRES(int portOfRES) {
-        this.portOfRES = portOfRES;
-    }
 }
