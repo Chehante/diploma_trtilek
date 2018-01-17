@@ -12,10 +12,12 @@ public class MessageService implements MessageDAO, Runnable{
 
     Connection connection;
     String baseName;
+    WarningMessage_1C warningMessage1C;
 
-    public MessageService(String baseName){
-        connection = Util_SQL.getConnect(baseName);
-        this.baseName = baseName;
+    public MessageService(WarningMessage_1C warningMessage1C){
+        this.warningMessage1C = warningMessage1C;
+        this.baseName = warningMessage1C.getBaseName();
+        connection = Util_SQL.getConnect(this.baseName);
     }
 
     @Override
@@ -83,6 +85,11 @@ public class MessageService implements MessageDAO, Runnable{
 
     @Override
     public void run() {
-
+        WarningMessage_1C currentMessage = getFirst(warningMessage1C.getTableName());
+        deleteFirst(currentMessage);
+        currentMessage.setMessageText(warningMessage1C.getMessageText());
+        add(currentMessage);
+        closeConnection();
+        System.out.println("Оповещение записано в базу: " + warningMessage1C.getBaseName());
     }
 }

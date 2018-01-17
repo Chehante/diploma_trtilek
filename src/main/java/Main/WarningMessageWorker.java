@@ -68,12 +68,15 @@ public class WarningMessageWorker {
 
     public void sendingWarningMessages(List<WarningMessage_1C> warningMessageList){
         for (WarningMessage_1C warningMessage1C: warningMessageList) {
-            MessageService messageService = new MessageService(warningMessage1C.getBaseName());
-            WarningMessage_1C currentMessage = messageService.getFirst(warningMessage1C.getTableName());
-            messageService.deleteFirst(currentMessage);
-            currentMessage.setMessageText(warningMessage1C.getMessageText());
-            messageService.add(currentMessage);
-            messageService.closeConnection();
+            MessageService messageService = new MessageService(warningMessage1C);
+            Thread thread = new Thread(messageService);
+            thread.start();
+//            MessageService messageService = new MessageService(warningMessage1C.getBaseName());
+//            WarningMessage_1C currentMessage = messageService.getFirst(warningMessage1C.getTableName());
+//            messageService.deleteFirst(currentMessage);
+//            currentMessage.setMessageText(warningMessage1C.getMessageText());
+//            messageService.add(currentMessage);
+//            messageService.closeConnection();
         }
     }
 
