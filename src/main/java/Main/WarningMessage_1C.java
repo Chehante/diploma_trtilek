@@ -6,12 +6,22 @@ public class WarningMessage_1C {
     private String messageText;
     private String tableName;
 
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
+
+    private String index;
+
     public String getTableName() {
         return tableName;
     }
 
-    public void setTableName(String tamleName) {
-        this.tableName = tamleName;
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     public String getBaseName() {

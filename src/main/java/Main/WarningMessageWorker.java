@@ -1,5 +1,6 @@
 package Main;
 
+import dao.MessageService;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -67,37 +68,13 @@ public class WarningMessageWorker {
 
     public void sendingWarningMessages(List<WarningMessage_1C> warningMessageList){
         for (WarningMessage_1C warningMessage1C: warningMessageList) {
-            Connection connection = Util_SQL.getConnect(warningMessage1C.getBaseName());
-            try {
-                Statement statement = connection.createStatement();
-                ResultSet rs = statement.executeQuery("SELECT * FROM " + warningMessage1C.getTableName());
-                String index = "";
-                while (rs.next()){
-                    index = rs.getString(2);
-                }
-                statement.close();
-                rs.close();
-                if (index != ""){
-                    Statement secondStatement = connection.createStatement();
-                    String sqlText = "DELETE FROM " + warningMessage1C.getTableName() + "; INSERT INTO " + warningMessage1C.getTableName() + " VALUES ('" + warningMessage1C.getMessageText()+ "', '" + index + "')";
-                    secondStatement.execute(sqlText);
-                }
-
-            } catch (SQLException e) {
-                System.out.println("Failed to create new statement connection");
-                e.printStackTrace();
-            }
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                System.out.println("Failed to close connection");
-                e.printStackTrace();
-            }
+            MessageService messageService = new MessageService(warningMessage1C.getBaseName());
+            WarningMessage_1C currentMessage = messageService.getFirst(warningMessage1C.getTableName());
+            messageService.deleteFirst(currentMessage);
+            currentMessage.setMessageText(warningMessage1C.getMessageText());
+            messageService.add(currentMessage);
+            messageService.closeConnection();
         }
-    }
-
-    public void clearWarningMessage(){
-
     }
 
     public void refreshBasesListFile(String filePath, List<WarningMessage_1C> warningMessagesList) throws ParserConfigurationException, TransformerException, FileNotFoundException {
